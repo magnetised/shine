@@ -17,7 +17,12 @@ module Shrimp
   end
 
   module JS
-    def self.compress(input_files)
+    def self.compress(input_file)
+      compressor = Shrimp::JS::Compressor.new(input_file)
+      compressor.compress
+    end
+
+    def self.compress_all(input_files)
       compressors = input_files.map {|f| Shrimp::JS::Compressor.new(f)}
       compressed = []
       compressors.each do |c|

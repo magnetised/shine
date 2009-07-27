@@ -4,6 +4,6 @@ $:.unshift(File.join(File.dirname(__FILE__), "../lib"))
 
 require 'shrimp'
 
-js = Shrimp::JS.compress(ARGV)
+js = Shrimp::JS.compress_all(ARGV)
 
 puts js.join("\n")
