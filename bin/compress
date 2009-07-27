@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), "../lib"))
+
+require 'shrimp'
+
+js = Shrimp::JS.compress(ARGV)
+
+puts js.join("\n")
