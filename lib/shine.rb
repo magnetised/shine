@@ -1,9 +1,9 @@
 require 'rubygems'
 require 'net/http/post/multipart'
 
-module Shrimp
+module Shine
   def self.compress_url
-    URI.parse('http://shrimp.magnetised.info/compress')
+    URI.parse('http://shine.magnetised.info/compress')
   end
   def self.compress_file(filepath, params={})
     url = compress_url
@@ -18,12 +18,12 @@ module Shrimp
 
   module JS
     def self.compress(input_file)
-      compressor = Shrimp::JS::Compressor.new(input_file)
+      compressor = Shine::JS::Compressor.new(input_file)
       compressor.compress
     end
 
     def self.compress_all(input_files)
-      compressors = input_files.map {|f| Shrimp::JS::Compressor.new(f)}
+      compressors = input_files.map {|f| Shine::JS::Compressor.new(f)}
       compressed = []
       compressors.each do |c|
         compressed << c.compress
@@ -37,7 +37,7 @@ module Shrimp
       end
 
       def compress(options={})
-        Shrimp.compress_file(@filepath)
+        Shine.compress_file(@filepath)
       end
     end
   end

@@ -3,13 +3,12 @@ require 'rubygems'
 require 'rake/gempackagetask'
 
 spec = Gem::Specification.new do |s| 
-  s.name = "Shrimp"
+  s.name = "Shine"
   s.version = "0.0.1"
   s.author = "Garry Hill"
   s.email = "garry@magnetised.info"
-  s.homepage = "http://shrimp.magnetised.info/"
-  s.platform = Gem::Platform::RUBY
-  s.summary = "Shrimp provides a Java-free way to use the excellent YUI compressor"
+  s.homepage = "http://shine.magnetised.info/" s.platform = Gem::Platform::RUBY
+  s.summary = "Shine provides a Java-free way to use the excellent YUI compressor"
   s.files = FileList["{bin,lib}/**/*"].to_a
   s.require_path = "lib"
   s.autorequire = "name"
