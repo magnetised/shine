@@ -2,8 +2,7 @@
 
 $:.unshift(File.join(File.dirname(__FILE__), "../lib"))
 
-require 'shrimp'
+require 'shine'
 
-js = Shrimp::JS.compress_all(ARGV)
+puts Shine::JS.files(ARGV)
 
-puts js.join("\n")
