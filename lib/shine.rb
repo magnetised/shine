@@ -1,3 +1,23 @@
+# Copyright (c) 2009 Garry Hill <garry@magnetised.info>
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
 require 'rubygems'
 require 'net/http/post/multipart'
 
@@ -37,13 +57,14 @@ module Shine
   def self.compress_files(filepaths, format=nil, options={})
     filepaths = [filepaths] unless filepaths.is_a?(Array)
     url = compress_url(format)
+    options = options.reject { |k, v| !v }
     params = {}
     begin
       files = filepaths.map {|f| File.open(f) }
       filepaths.each_with_index do |f, i|
         params["file#{i.to_s.rjust(4, "0")}"] = UploadIO.new(f, MIME[format], filepaths[i])
       end
-      req = Net::HTTP::Post::Multipart.new(url.path, params)
+      req = Net::HTTP::Post::Multipart.new(url.path, params.merge(options))
       result = Net::HTTP.start(url.host, url.port) do |http|
         http.request(req)
       end
@@ -65,6 +86,7 @@ module Shine
   def self.compress_string(source, format=nil, options={})
     url = compress_url(format)
     req = Net::HTTP::Post.new(url.path)
+    options = options.reject { |k, v| !v }
     req.set_form_data({'source' => source}.merge(options))
     result = Net::HTTP.start(url.host, url.port) do |http|
       http.request(req)
@@ -90,13 +112,16 @@ module Shine
         js
       end
     end
-    def self.file(f)
-      self.files([f])
+
+    def self.file(f, options={})
+      self.files(f, options)
     end
-    def self.files(*input_files)
+
+    def self.files(input_files, options={})
+      input_files = [input_files] unless input_files.is_a?(Array)
       input_files.flatten!
       compressor = Shine::JS::Compressor.new(input_files)
-      compressor.compress
+      compressor.compress(options)
     end
 
     class Compressor

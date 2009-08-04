@@ -21,6 +21,7 @@ describe Shine do
       @test_file1 = test_file('test01.js')
       @test_file2 = test_file('test02.js')
     end
+
     it "should compress a file in-place" do
       tempfile = Tempfile.new('shine-spec')
       tempfile.write(File.read(@test_file1[:source]))
@@ -36,9 +37,9 @@ describe Shine do
     end
     it "should compress a file" do
       Shine::JS.file(@test_file1[:source]).should == File.read(@test_file1[:compressed])
+      Shine::JS.files(@test_file1[:source]).should == File.read(@test_file1[:compressed])
     end
     it "should compress a list of files" do
-      Shine::JS.files(@test_file1[:source], @test_file2[:source]).should == File.read(test_file('test-concat.js')[:compressed])
       Shine::JS.files([@test_file1[:source], @test_file2[:source]]).should == File.read(test_file('test-concat.js')[:compressed])
     end
 
@@ -61,7 +62,36 @@ describe Shine do
         Shine::JS.string(source).should == source
       end
       it "shouldn't alter any of a list of compressed files" do
-        Shine::JS.files(@test_file1[:source], @test_file2[:source]).should == File.read(test_file('test-concat.js')[:source])
+        Shine::JS.files([@test_file1[:source], @test_file2[:source]]).should == File.read(test_file('test-concat.js')[:source])
+      end
+    end
+
+    describe "compression options" do
+
+      it "should honor the 'disable obfuscation' option" do
+        test_file = test_file('test03.js')
+        Shine::JS.string(File.read(test_file[:source]), {:disable_obfuscation => true}).should == File.read(test_file[:compressed])
+        Shine::JS.file(test_file[:source], {:disable_obfuscation => true}).should == File.read(test_file[:compressed])
+        test_file = test_file('test02.js')
+        Shine::JS.string(File.read(test_file[:source]), {:disable_obfuscation => false}).should == File.read(test_file[:compressed])
+      end
+      it "should honor the 'preserve_semi_colons' option" do
+        test_file = test_file('test04.js')
+        Shine::JS.string(File.read(test_file[:source]), {:preserve_semi_colons => true}).should == File.read(test_file[:compressed])
+        Shine::JS.file(test_file[:source], {:preserve_semi_colons => true}).should == File.read(test_file[:compressed])
+        test_file = test_file('test02.js')
+        Shine::JS.string(File.read(test_file[:source]), {:preserve_semi_colons => false}).should == File.read(test_file[:compressed])
+      end
+      it "should honor the 'disable_optimisations' option" do
+        # i don't know how to test this yet
+      end
+      it "should honor the 'linebreak' option" do
+        test_file = test_file('test06.js')
+        Shine::JS.string(File.read(test_file[:source]), {:linebreak => 0}).should == File.read(test_file[:compressed])
+        Shine::JS.file(test_file[:source], {:linebreak => 0}).should == File.read(test_file[:compressed])
+        test_file = test_file('test02.js')
+        Shine::JS.string(File.read(test_file[:source]), {:linebreak => false}).should == File.read(test_file[:compressed])
+        Shine::JS.string(File.read(test_file[:source]), {:linebreak => "house"}).should == File.read(test_file[:compressed])
       end
     end
   end
