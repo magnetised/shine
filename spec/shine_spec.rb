@@ -83,7 +83,12 @@ describe Shine do
         Shine::JS.string(File.read(test_file[:source]), {:preserve_semi_colons => false}).should == File.read(test_file[:compressed])
       end
       it "should honor the 'disable_optimisations' option" do
-        # i don't know how to test this yet
+        test_file = test_file('test05.js')
+        Shine::JS.string(File.read(test_file[:source]), {:disable_optimisations => true}).should == File.read(test_file[:compressed])
+        Shine::JS.file(test_file[:source], {:disable_optimisations => true}).should == File.read(test_file[:compressed])
+
+        test_file = test_file('test02.js')
+        Shine::JS.string(File.read(test_file[:source]), {:disable_optimisations => false}).should == File.read(test_file[:compressed])
       end
       it "should honor the 'linebreak' option" do
         test_file = test_file('test06.js')
