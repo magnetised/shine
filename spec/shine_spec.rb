@@ -100,4 +100,63 @@ describe Shine do
       end
     end
   end
+  describe Shine::CSS do
+    before(:each) do
+      # Shine.server = local
+      @test_file1 = test_file('test01.css')
+      @test_file2 = test_file('test02.css')
+    end
+    it "should compress a file in-place" do
+      tempfile = Tempfile.new('shine-spec')
+      tempfile.write(File.read(@test_file1[:source]))
+      tempfile.flush
+      Shine::CSS.in_place(tempfile.path)
+      File.read(tempfile.path).should == File.read(@test_file1[:compressed])
+      tempfile.close
+    end
+
+    it "should compress a string" do
+      source = File.read(@test_file1[:source])
+      Shine::CSS.string(source).should == File.read(@test_file1[:compressed])
+    end
+    it "should compress a file" do
+      Shine::CSS.file(@test_file1[:source]).should == File.read(@test_file1[:compressed])
+      Shine::CSS.files(@test_file1[:source]).should == File.read(@test_file1[:compressed])
+    end
+    it "should compress a list of files" do
+      Shine::CSS.files([@test_file1[:source], @test_file2[:source]]).should == File.read(test_file('test-concat.css')[:compressed])
+    end
+    describe "Error handling" do
+      before(:each) do
+        # don't like using this but it works
+        stub(Net::HTTP).start(anything, anything) { Net::HTTPServerException.new("", "") }
+      end
+
+      it "shouldn't touch an in-place file" do
+        tempfile = Tempfile.new('shine-spec')
+        tempfile.write(File.read(@test_file1[:source]))
+        tempfile.flush
+        Shine::CSS.in_place(tempfile.path)
+        File.read(tempfile.path).should == File.read(@test_file1[:source])
+        tempfile.close
+      end
+      it "should return an unmodified string" do
+        source = File.read(@test_file1[:source])
+        Shine::CSS.string(source).should == source
+      end
+      it "shouldn't alter any of a list of compressed files" do
+        Shine::CSS.files([@test_file1[:source], @test_file2[:source]]).should == File.read(test_file('test-concat.css')[:source])
+      end
+    end
+    describe "compression options" do
+      it "should honor the 'linebreak' option" do
+        test_file = test_file('test03.css')
+        Shine::CSS.string(File.read(test_file[:source]), {:linebreak => 0}).should == File.read(test_file[:compressed])
+        Shine::CSS.file(test_file[:source], {:linebreak => 0}).should == File.read(test_file[:compressed])
+        test_file = test_file('test02.css')
+        Shine::CSS.string(File.read(test_file[:source]), {:linebreak => false}).should == File.read(test_file[:compressed])
+        Shine::CSS.string(File.read(test_file[:source]), {:linebreak => "house"}).should == File.read(test_file[:compressed])
+      end
+    end
+  end
 end

@@ -141,4 +141,46 @@ module Shine
       end
     end
   end
+  module CSS
+    def self.in_place(input_file_path)
+      compressor = Shine::CSS::Compressor.new(input_file_path)
+      compressor.compress_in_place
+    end
+
+    def self.string(css, options={})
+      begin
+        Shine.compress_string(css, :css, options)
+      rescue CompressionError
+        js
+      end
+    end
+
+    def self.file(f, options={})
+      self.files(f, options)
+    end
+
+    def self.files(input_files, options={})
+      input_files = [input_files] unless input_files.is_a?(Array)
+      input_files.flatten!
+      compressor = Shine::CSS::Compressor.new(input_files)
+      compressor.compress(options)
+    end
+
+    class Compressor
+      def initialize(filepaths)
+        @filepaths = filepaths
+      end
+
+      def compress(options={})
+        Shine.compress_css(@filepaths, options)
+      end
+
+      def compress_in_place(options={})
+        @filepaths.each do |p|
+          c = Shine.compress_css(p, options)
+          File.open(p, 'w') { |f| f.write(c) }
+        end
+      end
+    end
+  end
 end
